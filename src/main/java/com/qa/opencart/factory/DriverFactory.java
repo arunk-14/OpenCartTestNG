@@ -14,6 +14,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.safari.SafariDriver;
 
+import com.qa.opencart.customexception.FrameworkException;
+
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class DriverFactory {
@@ -56,20 +58,57 @@ public class DriverFactory {
 	}
 	
 	/*
-	 * This method is used to initialize the properties from the config file
+	 * This method is used to initialize the properties from the environment config file
 	 * @return this returns properties class object with all the config properties
 	 */
 	
 	public Properties init_prop() {
+		FileInputStream ip = null;
+		prop = new Properties();
+		
+		// maven command line args:
+		// mvn clean install -Denv="qa"
+		String envName = System.getProperty("env");
+		System.out.println("Running test on environment: "+envName);
+		
+		if(envName==null) {
+			System.out.println("No environment is given, hence running test in qa environment");
+			envName = "qa";
+			try {
+				ip = new FileInputStream("./src/test/resource/config/qa.config.properties");
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			try {
+				switch (envName.toLowerCase()) {
+				case "qa":
+					ip = new FileInputStream("./src/test/resource/config/qa.config.properties");
+					break;
+				case "dev":
+					ip = new FileInputStream("./src/test/resource/config/dev.config.properties");
+					break;
+				case "stage":
+					ip = new FileInputStream("./src/test/resource/config/stage.config.properties");
+					break;
+				case "uat":
+					ip = new FileInputStream("./src/test/resource/config/uat.config.properties");
+					break;
+				case "prod":
+					ip = new FileInputStream("./src/test/resource/config/config.properties");
+					break;
+				default:
+					System.out.println("Please pass the right environment...."+envName);
+					throw new FrameworkException("No environment found");
+				}
+			} catch(FileNotFoundException | FrameworkException e) {
+				e.printStackTrace();
+			}
+		}
 		try {
-			FileInputStream ip = new FileInputStream("./src/test/resource/config/config.properties");
-			prop = new Properties();
 			prop.load(ip);
-		} catch (FileNotFoundException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
 		} catch (IOException e) {
-			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 		return prop;

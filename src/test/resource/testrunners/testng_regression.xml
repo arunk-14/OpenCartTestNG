@@ -6,6 +6,7 @@
 	<listeners>
 		<listener class-name="com.qa.opencart.listners.ExtentReportListener"/>
 		<listener class-name="com.qa.opencart.listners.TestAllureListener"/>
+		<listener class-name="com.qa.opencart.listners.AnnotationTransformer"/>
 	</listeners>
 	
 	<test name="Open Cart Login Page Test">
